@@ -1,0 +1,15 @@
+# Virtual environment
+venv/
+__pycache__/
+
+# Model weights
+*.pt
+
+# Generated outputs
+outputs/
+
+# Cache / temp files
+*.pyc
+
+# OS files
+.DS_Store

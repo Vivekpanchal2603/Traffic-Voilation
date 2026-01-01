@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'/>
+<title>Traffic Violation Dashboard - Government Portal</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'/>
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+<link href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #1d4ed8;
+  --primary-light: #60a5fa;
+  --secondary: #94a3b8;
+  --accent: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --card-bg: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --border: #334155;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white;
+  padding: 30px 0;
+  margin-bottom: 30px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="%23ffffff" opacity="0.1"><polygon points="0,0 1000,50 1000,100 0,100"/></svg>');
+  background-size: cover;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.header p {
+  opacity: 0.9;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.last-update {
+  text-align: right;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.last-update i {
+  margin-right: 8px;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  background: var(--primary);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+.stat-card.warning::before { background: var(--warning); }
+.stat-card.danger::before { background: var(--accent); }
+.stat-card.success::before { background: var(--success); }
+
+.stat-number {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Alerts */
+.alert-container {
+  margin-bottom: 30px;
+}
+
+.alert-card {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
+  border-left: 4px solid var(--warning);
+  padding: 20px 25px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.alert-card:hover {
+  transform: translateX(5px);
+}
+
+.alert-card.danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+  border-left-color: var(--accent);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  align-items: center;
+  background: var(--card-bg);
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.search-box {
+  flex: 1;
+  min-width: 300px;
+  padding: 14px 20px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  background: var(--bg-primary);
+}
+
+.search-box::placeholder {
+  color: var(--text-secondary);
+}
+
+.filter {
+  padding: 14px 20px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 15px;
+  min-width: 220px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.filter:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.filter option {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  padding: 10px;
+}
+
+.export-btn {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.export-btn.print {
+  background: linear-gradient(135deg, var(--success), #059669);
+}
+
+.export-btn.print:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Tables */
+.table-container {
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 30px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.data-table th {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white;
+  padding: 18px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border);
+}
+
+.data-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Charts Section */
+.charts-section {
+  margin: 40px 0;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-title i {
+  color: var(--primary);
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.chart-container {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.chart-container:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.chart-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chart-title i {
+  color: var(--primary);
+  font-size: 18px;
+}
+
+/* Navigation */
+.nav-tabs {
+  display: flex;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 30px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.nav-tab {
+  flex: 1;
+  padding: 16px 24px;
+  text-align: center;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.nav-tab.active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.nav-tab:hover:not(.active) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.tab-content {
+  display: none;
+  animation: fadeInUp 0.5s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 40px 0;
+  margin-top: 60px;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 14px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card-bg);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  min-width: 450px;
+  border: 1px solid var(--border);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.modal h3 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.modal p {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 15px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Search Stats */
+.search-stats {
+  background: var(--bg-secondary);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 15px;
+  border: 1px solid var(--border);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+    padding: 0 20px;
+  }
+  
+  .last-update {
+    text-align: center;
+  }
+  
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-box, .filter {
+    min-width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .nav-tabs {
+    flex-direction: column;
+  }
+  
+  .nav-tab {
+    min-width: 100%;
+  }
+  
+  .modal-content {
+    min-width: 90%;
+    margin: 20px;
+    padding: 30px 20px;
+  }
+  
+  .modal-buttons {
+    flex-direction: column;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .nav-tabs, .controls, .footer, .export-btn {
+    display: none !important;
+  }
+  
+  .header {
+    background: #1d4ed8 !important;
+    -webkit-print-color-adjust: exact;
+  }
+  
+  .stat-card {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  .table-container {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}
+</style>
+</head>
+<body>
+  <div class='container'>
+    <!-- Header -->
+    <div class='header'>
+      <div class='header-content'>
+        <div>
+          <h1><i class="fas fa-traffic-light"></i> Traffic Violation Management System</h1>
+          <p>Government Traffic Enforcement Dashboard</p>
+        </div>
+        <div class='last-update'>
+          <i class="fas fa-sync-alt"></i>Last Updated: 2025-11-16 13:30:02
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="alert-card">🚨 High Value Alert: X5283 has accumulated challans of ₹5,500</div>
+
+    <!-- Stats Overview -->
+    <div class='stats-grid'>
+      <div class='stat-card'>
+        <div class='stat-number'>27</div>
+        <div class='stat-label'>Total Violations Recorded</div>
+      </div>
+      <div class='stat-card success'>
+        <div class='stat-number'>₹31,500</div>
+        <div class='stat-label'>Total Revenue Generated</div>
+      </div>
+      <div class='stat-card'>
+        <div class='stat-number'>27</div>
+        <div class='stat-label'>Unique Vehicles Monitored</div>
+      </div>
+      <div class='stat-card danger'>
+        <div class='stat-number'>X5283</div>
+        <div class='stat-label'>Top Violator Vehicle</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class='nav-tabs'>
+      <button class='nav-tab active' onclick="showTab('violations')">
+        <i class="fas fa-list"></i>Violation Records
+      </button>
+      <button class='nav-tab' onclick="showTab('analytics')">
+        <i class="fas fa-chart-bar"></i>Analytics & Charts
+      </button>
+      <button class='nav-tab' onclick="showTab('recent')">
+        <i class="fas fa-clock"></i>Recent Activity
+      </button>
+    </div>
+
+    <!-- Violations Tab -->
+    <div id='violations' class='tab-content active'>
+      <div class='controls'>
+        <input type='text' id='searchInput' class='search-box' placeholder='🔍 Search by vehicle number, violation type...' oninput='applySearch()'>
+        
+            <select id='filterSelect' onchange='filterTable()' class='filter'>
+              <option value=''>All Violation Types</option>
+              <option value='No Helmet'>No Helmet</option><option value='No Helmet + Triple Seat'>No Helmet + Triple Seat</option>
+            </select>
+            
+        <button class='export-btn' onclick='exportData()'>
+          <i class="fas fa-download"></i>Export Data
+        </button>
+        <button class='export-btn print' onclick='printReport()'>
+          <i class="fas fa-print"></i>Print Report
+        </button>
+      </div>
+      <div id="searchStats" class="search-stats">
+        Showing 27 of 27 records
+      </div>
+      <div class='table-container'>
+        <table class="dataframe data-table" id="databaseTable">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Number Plate</th>
+      <th>Name</th>
+      <th>Surname</th>
+      <th>Phone</th>
+      <th>Challan</th>
+      <th>Violation Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MH14GE9533</td>
+      <td>Karan</td>
+      <td>Yadav</td>
+      <td>3908672087</td>
+      <td>4500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>8T1428</td>
+      <td>Rahul</td>
+      <td>Rao</td>
+      <td>5384314196</td>
+      <td>5500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>HHT9D</td>
+      <td>vikas</td>
+      <td>pandit</td>
+      <td>4455530144</td>
+      <td>1000</td>
+      <td>No Helmet + Triple Seat</td>
+    </tr>
+    <tr>
+      <td>X5283</td>
+      <td>Vivek</td>
+      <td>panchal</td>
+      <td>3540822569</td>
+      <td>5500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>1F23</td>
+      <td>Karan</td>
+      <td>Yadav</td>
+      <td>1451191722</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>KH90X5283</td>
+      <td>Karan</td>
+      <td>Rao</td>
+      <td>9916797151</td>
+      <td>2000</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MK4JE144</td>
+      <td>Karan</td>
+      <td>Sharma</td>
+      <td>6624415592</td>
+      <td>1000</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MM19DK5201</td>
+      <td>Rina</td>
+      <td>Gupta</td>
+      <td>8964680985</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>JH19CX5283</td>
+      <td>Rahul</td>
+      <td>Singh</td>
+      <td>2524695924</td>
+      <td>1500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MH19DX5283</td>
+      <td>Suresh</td>
+      <td>Verma</td>
+      <td>9907602497</td>
+      <td>1000</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>RHA7M425</td>
+      <td>Rina</td>
+      <td>Sharma</td>
+      <td>590257812</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>RHA7J425</td>
+      <td>Rahul</td>
+      <td>Mehta</td>
+      <td>5670939273</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>0A2EM</td>
+      <td>Vivek</td>
+      <td>Patel</td>
+      <td>9753580189</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MH190X5283</td>
+      <td>Pooja</td>
+      <td>Patel</td>
+      <td>8126753578</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>IO19OX5283</td>
+      <td>Rahul</td>
+      <td>Yadav</td>
+      <td>3524914333</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>ZOHASD</td>
+      <td>Vivek</td>
+      <td>Verma</td>
+      <td>2036684237</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>NH19OX5283</td>
+      <td>Suresh</td>
+      <td>Yadav</td>
+      <td>7978838865</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>P</td>
+      <td>Suresh</td>
+      <td>Patel</td>
+      <td>1134000746</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>FFA</td>
+      <td>Neha</td>
+      <td>Singh</td>
+      <td>6081577684</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MNTFD</td>
+      <td>Karan</td>
+      <td>Verma</td>
+      <td>6809422125</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>81KA2</td>
+      <td>Suresh</td>
+      <td>Gupta</td>
+      <td>2801220596</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>1H31288</td>
+      <td>Amit</td>
+      <td>Yadav</td>
+      <td>5230362804</td>
+      <td>500</td>
+      <td>No Helmet + Triple Seat</td>
+    </tr>
+    <tr>
+      <td>MHT9PX5283</td>
+      <td>Karan</td>
+      <td>Patel</td>
+      <td>3097590552</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MM43874428</td>
+      <td>Rina</td>
+      <td>Gupta</td>
+      <td>5096897584</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MHT9PXS283</td>
+      <td>Neha</td>
+      <td>Singh</td>
+      <td>1841438409</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>WB21</td>
+      <td>Vivek</td>
+      <td>Gupta</td>
+      <td>7277835796</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>TW津冀W</td>
+      <td>Suresh</td>
+      <td>Yadav</td>
+      <td>43760963</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+  </tbody>
+</table>
+      </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id='analytics' class='tab-content'>
+      <div class='charts-section'>
+        <h2 class='section-title'><i class="fas fa-chart-pie"></i>Violation Analytics</h2>
+        <div class='charts-grid'>
+          <div class='chart-container'>
+            <div class='chart-title'><i class="fas fa-chart-pie"></i>Violation Type Distribution</div>
+            <canvas id='violationChart'></canvas>
+          </div>
+          <div class='chart-container'>
+            <div class='chart-title'><i class="fas fa-trophy"></i>Top Violators by Challan Amount</div>
+            <canvas id='violatorChart'></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Tab -->
+    <div id='recent' class='tab-content'>
+      <h2 class='section-title'><i class="fas fa-bell"></i>Recent Violation Activity</h2>
+      <div class='table-container'>
+        <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Number Plate</th>
+      <th>Name</th>
+      <th>Surname</th>
+      <th>Phone</th>
+      <th>Challan</th>
+      <th>Violation Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>P</td>
+      <td>Suresh</td>
+      <td>Patel</td>
+      <td>1134000746</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>FFA</td>
+      <td>Neha</td>
+      <td>Singh</td>
+      <td>6081577684</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MNTFD</td>
+      <td>Karan</td>
+      <td>Verma</td>
+      <td>6809422125</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>81KA2</td>
+      <td>Suresh</td>
+      <td>Gupta</td>
+      <td>2801220596</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>1H31288</td>
+      <td>Amit</td>
+      <td>Yadav</td>
+      <td>5230362804</td>
+      <td>500</td>
+      <td>No Helmet + Triple Seat</td>
+    </tr>
+    <tr>
+      <td>MHT9PX5283</td>
+      <td>Karan</td>
+      <td>Patel</td>
+      <td>3097590552</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MM43874428</td>
+      <td>Rina</td>
+      <td>Gupta</td>
+      <td>5096897584</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>MHT9PXS283</td>
+      <td>Neha</td>
+      <td>Singh</td>
+      <td>1841438409</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>WB21</td>
+      <td>Vivek</td>
+      <td>Gupta</td>
+      <td>7277835796</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+    <tr>
+      <td>TW津冀W</td>
+      <td>Suresh</td>
+      <td>Yadav</td>
+      <td>43760963</td>
+      <td>500</td>
+      <td>No Helmet</td>
+    </tr>
+  </tbody>
+</table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class='footer'>
+      <p><strong>Traffic Violation Management System</strong> © 2024 | Official Government Portal</p>
+      <p>For official use only | Data is updated in real-time</p>
+    </div>
+  </div>
+
+  <!-- Export Modal -->
+  <div id="exportModal" class="modal">
+    <div class="modal-content">
+      <h3>Export Data</h3>
+      <p>Choose your preferred export format:</p>
+      <div class="modal-buttons">
+        <button class="export-btn" onclick="downloadCSV()"><i class="fas fa-file-csv"></i> CSV Format</button>
+        <button class="export-btn" onclick="downloadJSON()"><i class="fas fa-file-code"></i> JSON Format</button>
+        <button class="export-btn" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> PDF Report</button>
+        <button class="export-btn" onclick="closeModal()" style="background: var(--secondary);">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const VIOLATION_LABELS = ["No Helmet", "No Helmet + Triple Seat"];
+const VIOLATION_VALUES = [25, 2];
+const VIOLATOR_LABELS = ["X5283", "8T1428", "MH14GE9533", "KH90X5283", "JH19CX5283", "MK4JE144", "HHT9D", "MH19DX5283", "RHA7J425", "NH19OX5283", "P", "0A2EM", "MM43874428", "RHA7M425", "TW\u6d25\u5180W", "WB21", "MNTFD", "MHT9PX5283", "MM19DK5201", "MHT9PXS283", "1F23", "MH190X5283", "IO19OX5283", "FFA", "81KA2", "1H31288", "ZOHASD"];
+const VIOLATOR_VALUES = [5500, 5500, 4500, 2000, 1500, 1000, 1000, 1000, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500];
+const BASE_DATA = [{"Number Plate": "MH14GE9533", "Name": "Karan", "Surname": "Yadav", "Phone": 3908672087, "Challan": 4500, "Violation Type": "No Helmet"}, {"Number Plate": "8T1428", "Name": "Rahul", "Surname": "Rao", "Phone": 5384314196, "Challan": 5500, "Violation Type": "No Helmet"}, {"Number Plate": "HHT9D", "Name": "vikas", "Surname": "pandit", "Phone": 4455530144, "Challan": 1000, "Violation Type": "No Helmet + Triple Seat"}, {"Number Plate": "X5283", "Name": "Vivek", "Surname": "panchal", "Phone": 3540822569, "Challan": 5500, "Violation Type": "No Helmet"}, {"Number Plate": "1F23", "Name": "Karan", "Surname": "Yadav", "Phone": 1451191722, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "KH90X5283", "Name": "Karan", "Surname": "Rao", "Phone": 9916797151, "Challan": 2000, "Violation Type": "No Helmet"}, {"Number Plate": "MK4JE144", "Name": "Karan", "Surname": "Sharma", "Phone": 6624415592, "Challan": 1000, "Violation Type": "No Helmet"}, {"Number Plate": "MM19DK5201", "Name": "Rina", "Surname": "Gupta", "Phone": 8964680985, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "JH19CX5283", "Name": "Rahul", "Surname": "Singh", "Phone": 2524695924, "Challan": 1500, "Violation Type": "No Helmet"}, {"Number Plate": "MH19DX5283", "Name": "Suresh", "Surname": "Verma", "Phone": 9907602497, "Challan": 1000, "Violation Type": "No Helmet"}, {"Number Plate": "RHA7M425", "Name": "Rina", "Surname": "Sharma", "Phone": 590257812, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "RHA7J425", "Name": "Rahul", "Surname": "Mehta", "Phone": 5670939273, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "0A2EM", "Name": "Vivek", "Surname": "Patel", "Phone": 9753580189, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "MH190X5283", "Name": "Pooja", "Surname": "Patel", "Phone": 8126753578, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "IO19OX5283", "Name": "Rahul", "Surname": "Yadav", "Phone": 3524914333, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "ZOHASD", "Name": "Vivek", "Surname": "Verma", "Phone": 2036684237, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "NH19OX5283", "Name": "Suresh", "Surname": "Yadav", "Phone": 7978838865, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "P", "Name": "Suresh", "Surname": "Patel", "Phone": 1134000746, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "FFA", "Name": "Neha", "Surname": "Singh", "Phone": 6081577684, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "MNTFD", "Name": "Karan", "Surname": "Verma", "Phone": 6809422125, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "81KA2", "Name": "Suresh", "Surname": "Gupta", "Phone": 2801220596, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "1H31288", "Name": "Amit", "Surname": "Yadav", "Phone": 5230362804, "Challan": 500, "Violation Type": "No Helmet + Triple Seat"}, {"Number Plate": "MHT9PX5283", "Name": "Karan", "Surname": "Patel", "Phone": 3097590552, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "MM43874428", "Name": "Rina", "Surname": "Gupta", "Phone": 5096897584, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "MHT9PXS283", "Name": "Neha", "Surname": "Singh", "Phone": 1841438409, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "WB21", "Name": "Vivek", "Surname": "Gupta", "Phone": 7277835796, "Challan": 500, "Violation Type": "No Helmet"}, {"Number Plate": "TW\u6d25\u5180W", "Name": "Suresh", "Surname": "Yadav", "Phone": 43760963, "Challan": 500, "Violation Type": "No Helmet"}];
+
+let violationChart, violatorChart;
+let currentFilter = '';
+let currentSearch = '';
+
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.nav-tab').forEach(button => {
+        button.classList.remove('active');
+    });
+    
+    // Show selected tab and activate button
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+    
+    // Initialize charts if showing analytics tab
+    if (tabName === 'analytics') {
+        setTimeout(() => {
+            initializeCharts();
+        }, 100);
+    }
+}
+
+function applySearch() {
+    currentSearch = document.getElementById('searchInput').value.toLowerCase();
+    filterTable();
+}
+
+function filterByType() {
+    currentFilter = document.getElementById('filterSelect').value.toLowerCase();
+    filterTable();
+}
+
+function filterTable() {
+    const rows = document.querySelectorAll('#databaseTable tbody tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        const violationType = row.cells[3]?.textContent.toLowerCase() || '';
+        
+        const matchesSearch = !currentSearch || rowText.includes(currentSearch);
+        const matchesFilter = !currentFilter || violationType.includes(currentFilter);
+        
+        const isVisible = matchesSearch && matchesFilter;
+        row.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
+    });
+    
+    updateSearchStats(visibleCount);
+}
+
+function updateSearchStats(count) {
+    const statsElement = document.getElementById('searchStats');
+    if (statsElement) {
+        statsElement.textContent = `Showing ${count} of ${BASE_DATA.length} records`;
+    }
+}
+
+function initializeCharts() {
+    // Destroy existing charts if they exist
+    if (violationChart) {
+        violationChart.destroy();
+    }
+    if (violatorChart) {
+        violatorChart.destroy();
+    }
+    
+    // Violation Type Chart (Doughnut)
+    const violationCtx = document.getElementById('violationChart').getContext('2d');
+    violationChart = new Chart(violationCtx, {
+        type: 'doughnut',
+        data: {
+            labels: VIOLATION_LABELS,
+            datasets: [{
+                data: VIOLATION_VALUES,
+                backgroundColor: [
+                    '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
+                    '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
+                ],
+                borderWidth: 3,
+                borderColor: '#1e293b',
+                hoverOffset: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        },
+                        color: '#cbd5e1'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleColor: '#f1f5f9',
+                    bodyColor: '#cbd5e1',
+                    borderColor: '#334155',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+    
+    // Violator Chart (Bar)
+    const violatorCtx = document.getElementById('violatorChart').getContext('2d');
+    const topViolators = VIOLATOR_LABELS.slice(0, 8);
+    const topValues = VIOLATOR_VALUES.slice(0, 8);
+    
+    violatorChart = new Chart(violatorCtx, {
+        type: 'bar',
+        data: {
+            labels: topViolators,
+            datasets: [{
+                label: 'Challan Amount (₹)',
+                data: topValues,
+                backgroundColor: '#3b82f6',
+                borderColor: '#1d4ed8',
+                borderWidth: 2,
+                borderRadius: 6,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString();
+                        },
+                        font: {
+                            weight: '600'
+                        },
+                        color: '#cbd5e1'
+                    },
+                    grid: {
+                        color: '#334155'
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            weight: '600'
+                        },
+                        color: '#cbd5e1'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleColor: '#f1f5f9',
+                    bodyColor: '#cbd5e1',
+                    borderColor: '#334155',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            return `Challan Amount: ₹${context.parsed.y.toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Export functionality
+function exportData() {
+    document.getElementById('exportModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('exportModal').style.display = 'none';
+}
+
+function downloadCSV() {
+    try {
+        const headers = Object.keys(BASE_DATA[0]);
+        const csvContent = [
+            headers.join(','),
+            ...BASE_DATA.map(row => headers.map(header => 
+                `"${String(row[header] || '').replace(/"/g, '""')}"`
+            ).join(','))
+        ].join('\n');
+        
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'traffic_violation_data.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        closeModal();
+    } catch (error) {
+        console.error('Error generating CSV:', error);
+        alert('Error generating CSV file. Please try again.');
+    }
+}
+
+function downloadJSON() {
+    try {
+        const jsonContent = JSON.stringify(BASE_DATA, null, 2);
+        const blob = new Blob([jsonContent], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'traffic_violation_data.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        closeModal();
+    } catch (error) {
+        console.error('Error generating JSON:', error);
+        alert('Error generating JSON file. Please try again.');
+    }
+}
+
+function downloadPDF() {
+    // Simple PDF generation using browser print
+    const originalTitle = document.title;
+    document.title = 'Traffic Violation Report - ' + new Date().toLocaleDateString();
+    window.print();
+    document.title = originalTitle;
+    closeModal();
+}
+
+function printReport() {
+    const originalTitle = document.title;
+    document.title = 'Traffic Violation Report - ' + new Date().toLocaleDateString();
+    window.print();
+    document.title = originalTitle;
+}
+
+// Initialize dashboard when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize search functionality
+    updateSearchStats(BASE_DATA.length);
+    
+    // Initialize charts if on analytics tab
+    if (document.getElementById('analytics').classList.contains('active')) {
+        initializeCharts();
+    }
+    
+    // Set up filter event listener
+    const filterSelect = document.getElementById('filterSelect');
+    if (filterSelect) {
+        filterSelect.addEventListener('change', filterByType);
+    }
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', function(event) {
+    const modal = document.getElementById('exportModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+});
+
+// Handle escape key to close modal
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+});
+</script>
+</body>
+</html>
