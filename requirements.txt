@@ -1,0 +1,14 @@
+
+---
+
+# `requirements.txt`
+
+```txt
+fastapi
+uvicorn
+python-multipart
+ultralytics
+opencv-python
+requests
+numpy
+python-dotenv

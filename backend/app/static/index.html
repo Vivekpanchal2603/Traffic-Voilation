@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Traffic AI Monitor</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo-section">
+            <div class="logo-icon">🚦</div>
+            <span>Traffic AI Monitor</span>
+        </div>
+        <div class="status-online">● System Online</div>
+    </nav>
+
+    <main class="dashboard">
+
+        <section class="hero">
+            <h1>AI-Powered Traffic Violation Detection</h1>
+            <p>Automated Helmet, Triple Riding & Number Plate Recognition</p>
+        </section>
+
+        <section class="main-layout">
+
+            <!-- LEFT PANEL -->
+            <div class="upload-panel glass">
+                <h2>Upload Surveillance Video</h2>
+
+                <div class="upload-area">
+                    <input type="file" id="videoFile" accept="video/*" onchange="previewVideo(event)">
+                    <p>Drop video here or browse files</p>
+                    <small>Supported formats: MP4, AVI, MOV</small>
+                </div>
+
+                <!-- VIDEO PREVIEW -->
+                <div class="video-preview-wrapper">
+                    <video id="videoPreview" controls></video>
+                </div>
+
+                <button onclick="uploadVideo()">Upload & Analyze</button>
+
+                <div id="status" class="status-box"></div>
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="result-panel glass">
+                <h2>Detection Results</h2>
+
+                <div id="result" class="result-content">
+                    <div class="result-item">
+                        <span>Status:</span>
+                        <strong>Awaiting Analysis...</strong>
+                    </div>
+
+                    <div class="result-item">
+                        <span>No Helmet:</span>
+                        <strong>--</strong>
+                    </div>
+
+                    <div class="result-item">
+                        <span>Triple Seat:</span>
+                        <strong>--</strong>
+                    </div>
+
+                    <div class="result-item">
+                        <span>Plate Number:</span>
+                        <strong>--</strong>
+                    </div>
+
+                    <div class="result-item">
+                        <span>Saved Plates:</span>
+                        <strong>--</strong>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- OUTPUT PREVIEW -->
+        <section class="preview-panel glass">
+            <h2>Output Preview</h2>
+
+            <div class="preview-grid">
+
+                <div class="preview-card">
+                    <h3>Detected Plates</h3>
+                    <div id="platePreview" class="preview-images"></div>
+                </div>
+
+                <div class="preview-card">
+                    <h3>Violation Frames</h3>
+                    <div id="framePreview" class="preview-images"></div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,32 @@
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+backend/venv/
+
+# Environment Variables
+.env
+backend/.env
+
+# Generated Runtime Files
+backend/uploads/
+backend/outputs/
+
+# IDE Files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
