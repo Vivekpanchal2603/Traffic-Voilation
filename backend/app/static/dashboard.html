@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Violation Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo-section">
+            <div class="logo-icon">🚦</div>
+            <span>Violation Dashboard</span>
+        </div>
+
+        <button class="dashboard-btn" onclick="window.location.href='index.html'">
+            Back to Main UI
+        </button>
+    </nav>
+
+    <main class="dashboard">
+
+        <section class="preview-panel glass">
+            <h2>All Traffic Violations</h2>
+
+            <!-- STATS CARDS -->
+            <div class="stats-grid">
+                <div class="preview-card">
+                    <h3>Total Violations</h3>
+                    <p id="totalViolations">0</p>
+                </div>
+
+                <div class="preview-card">
+                    <h3>Total Pending Revenue</h3>
+                    <p id="totalRevenue">₹0</p>
+                </div>
+            </div>
+
+            <!-- SEARCH BAR -->
+            <input type="text" id="searchPlate" class="search-box" placeholder="Search by Number Plate..."
+                onkeyup="filterViolations()" />
+
+            <!-- TABLE -->
+            <div class="table-wrapper">
+                <table id="violationTable" class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Violation ID</th>
+                            <th>Timestamp</th>
+                            <th>Plate</th>
+                            <th>Helmet</th>
+                            <th>Triple</th>
+                            <th>Phone</th>
+                            <th>Fine</th>
+                            <th>Paid</th>
+                        </tr>
+                    </thead>
+
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

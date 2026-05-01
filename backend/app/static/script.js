@@ -17,6 +17,7 @@ async function uploadVideo() {
     }
 
     status.innerHTML = "📤 Uploading video...";
+
     resultDiv.innerHTML = `
         <div class="result-item">
             <span>Status:</span>
@@ -30,7 +31,7 @@ async function uploadVideo() {
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
 
-        // Upload
+        // Upload Video
         const uploadRes = await fetch("/upload", {
             method: "POST",
             body: formData
@@ -40,10 +41,16 @@ async function uploadVideo() {
 
         status.innerHTML = "🧠 Running AI Detection Pipeline...";
 
-        // Process
-        const processRes = await fetch(`/process/${uploadData.job_id}`, {
-            method: "POST"
-        });
+        // Process Video
+        const autoEmail =
+            document.getElementById("autoEmailToggle").checked;
+
+        const processRes = await fetch(
+            `/process/${uploadData.job_id}?auto_email=${autoEmail}`,
+            {
+                method: "POST"
+            }
+        );
 
         const processData = await processRes.json();
         const result = processData.result;
@@ -52,28 +59,28 @@ async function uploadVideo() {
 
         resultDiv.innerHTML = `
             <div class="result-item">
-                <span>Violation Detected</span>
-                <strong>${result.violation_detected ? "YES" : "NO"}</strong>
+                <span>Helmet Violation</span>
+                <strong>${result.helmet_violation ? "YES" : "NO"}</strong>
             </div>
 
             <div class="result-item">
-                <span>No Helmet</span>
-                <strong>${result.no_helmet ?? "--"}</strong>
+                <span>Triple Seat Violation</span>
+                <strong>${result.triple_seat_violation ? "YES" : "NO"}</strong>
             </div>
 
             <div class="result-item">
-                <span>Triple Seat</span>
-                <strong>${result.triple_seat ?? "--"}</strong>
+                <span>Phone Violation</span>
+                <strong>${result.phone_violation ? "YES" : "NO"}</strong>
             </div>
 
             <div class="result-item">
-                <span>Plate Number</span>
-                <strong>${result.plate_number || "Pending"}</strong>
+                <span>Total Fine</span>
+                <strong>₹${result.fine_amount || 0}</strong>
             </div>
 
             <div class="result-item">
-                <span>Saved Plate Crops</span>
-                <strong>${result.plates_saved}</strong>
+                <span>Number Plate</span>
+                <strong>${result.number_plate || "--"}</strong>
             </div>
         `;
 
@@ -103,19 +110,21 @@ function renderPreviewImages(jobId) {
     platePreview.innerHTML = "";
     framePreview.innerHTML = "";
 
-    // Show only top 3 plate images
+    // Show Top 3 Plate Images
     for (let i = 1; i <= 3; i++) {
         const img = createPreviewImage(
             `/outputs/${jobId}/plates/plate_best_${i}.jpg`
         );
+
         platePreview.appendChild(img);
     }
 
-    // Show only top 3 violation frames
+    // Show Top 3 Violation Frames
     for (let i = 1; i <= 3; i++) {
         const img = createPreviewImage(
             `/outputs/${jobId}/full_frames/frame_best_${i}.jpg`
         );
+
         framePreview.appendChild(img);
     }
 }

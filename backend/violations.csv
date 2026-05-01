@@ -1,0 +1,6 @@
+violation_id,timestamp,number_plate,helmet_violation,triple_seat_violation,phone_violation,fine_amount
+33cefbed-ff5b-4411-ae9f-5963743f9992,2026-05-01T14:34:47.096461,MH190X5283,True,False,False,500
+3496ed6d-4c17-4a8f-9d0a-4074d94459f3,2026-05-01T14:39:03.132162,MH190X5283,True,False,False,500
+c2a2e658-8e0f-4991-98a0-e4ea7a39d86b,2026-05-01T14:39:37.234716,MH14GE9533,True,False,True,1000
+5098cb44-2aee-45e4-b7f4-912165e69529,2026-05-01T15:03:15.503085,MH43DT1428,True,False,False,500
+cf914b02-5c2a-4afe-9163-88e0da719861,2026-05-01T15:04:03.381848,MH19DX5283,True,False,False,500
